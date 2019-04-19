@@ -1,13 +1,15 @@
 // app start 
 
 let puzzelGrid = []
-const puzzelSize = { rows: 2, cols: 3 };
+const puzzelSize = { rows: 3, cols: 6 };
+let dropZones = []
 
 let buildGrid = (puzzelSize, element) => {
   let output = [];
   let h = element.height();
   let w = element.width();
   let pieceSize = { height: h / puzzelSize.rows, width: w / puzzelSize.cols }
+  // let offSet = 0.2;
   for (let row = 0; row < puzzelSize.rows; row++) {
     let thisRow = [];
     for (let col = 0; col < puzzelSize.cols; col++) {
@@ -28,7 +30,8 @@ let buildPieces = (puzzelGrid) => {
   let output = [];
   puzzelGrid.forEach(row => {
     row.forEach(item => {
-      let piece = $('<div>').addClass('puzzel-piece').addClass('draggable');
+      let id = 'p' + item.gridPosition.x + '_' + item.gridPosition.y;
+      let piece = $('<div id="' + id + '">').addClass('puzzel-piece').addClass('draggable');
       piece.css({
         width: item.width,
         height: item.height,
@@ -41,14 +44,92 @@ let buildPieces = (puzzelGrid) => {
   return output;
 }
 
+let buildDropZones = (puzzelGrid) => {
+  let output = [];
+  puzzelGrid.forEach(row => {
+    row.forEach(item => {
+      let zone = $('<div>').addClass('drop-zone').addClass('drop-zone-' + item.gridPosition.x + '-' + item.gridPosition.y);
+      zone.css({
+        width: item.width,
+        height: item.height,
+        top: item.position.top,
+        left: item.position.left,
+      })
+      output.push(zone);
+    })
+  })
+  return output;
+}
+
+
 $(document).ready(() => {
   let puzzelBox = $('.puzzel-box');
   puzzelGrid = buildGrid(puzzelSize, puzzelBox);
   let pieces = buildPieces(puzzelGrid);
   puzzelBox.append(pieces);
+  puzzelBox.append(buildDropZones(puzzelGrid));
+  enableDrag();
+  enableDropZones(puzzelGrid);
+})
 
-  console.log(interact);
+enableDropZones = (puzzelGrid) => {
+  puzzelGrid.forEach(row => {
+    row.forEach(item => {
+      let pieceId = 'p' + item.gridPosition.x + '_' + item.gridPosition.y;
+      interact('.drop-zone-' + item.gridPosition.x + '-' + item.gridPosition.y)
+        .dropzone({
+          // only accept elements matching this CSS selector
+          accept: '#' + pieceId,
+          // Require a 75% element overlap for a drop to be possible
+          overlap: 0.95,
 
+          // listen for drop related events:
+
+          // ondropactivate: function (event) {
+          //   // add active dropzone feedback
+          //   // event.target.classList.add('drop-active')
+          //   console.log('enter');
+          // },
+          // ondragenter: function (event) {
+          //   var draggableElement = event.relatedTarget;
+          //   var dropzoneElement = event.target;
+
+          //   // feedback the possibility of a drop
+          //   dropzoneElement.classList.add('drop-target')
+          //   draggableElement.classList.add('can-drop')
+          //   draggableElement.textContent = 'Dragged in'
+          // },
+          // ondragleave: function (event) {
+          //   // remove the drop feedback style
+          //   event.target.classList.remove('drop-target')
+          //   event.relatedTarget.classList.remove('can-drop')
+          //   event.relatedTarget.textContent = 'Dragged out'
+          // },
+          ondrop: function (event) {
+            // event.relatedTarget.textContent = 'Dropped';
+            let piece = $(event.relatedTarget);
+            piece.removeClass('draggable');
+            piece.removeAttr('data-x');
+            piece.removeAttr('data-y');
+            piece.css({
+              width: item.width,
+              height: item.height,
+              top: item.position.top,
+              left: item.position.left,
+              transform: 'none',
+            })
+          },
+          // ondropdeactivate: function (event) {
+          //   // remove active dropzone feedback
+          //   event.target.classList.remove('drop-active')
+          //   event.target.classList.remove('drop-target')
+          // }
+        });
+    })
+  })
+}
+
+let enableDrag = () => {
   interact('.draggable')
     .draggable({
       // enable inertial throwing
@@ -78,9 +159,7 @@ $(document).ready(() => {
       }
     });
 
-})
-
-
+}
 
 function dragMoveListener(event) {
   var target = event.target,
@@ -97,3 +176,5 @@ function dragMoveListener(event) {
   target.setAttribute('data-x', x);
   target.setAttribute('data-y', y);
 }
+
+window.dragMoveListener = dragMoveListener;

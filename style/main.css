@@ -17,4 +17,12 @@
   position: absolute;
   border: 1px solid black;
   touch-action: none;
+  z-index: 1;
+}
+
+.drop-zone {
+  box-sizing: border-box;
+  position: absolute;
+  border: 1px solid red;
+  touch-action: none;
 }
