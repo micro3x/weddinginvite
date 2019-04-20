@@ -1,5 +1,5 @@
 .main-box {
-  min-height: 500px;
+  min-height: 300px;
   background: lightgray;
   position: relative;
   padding: 50px;
@@ -26,3 +26,8 @@
   border: 1px solid red;
   touch-action: none;
 }
+
+.hide {
+  display: none;
+}
+

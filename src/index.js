@@ -1,13 +1,18 @@
 // app start 
 
-let puzzelGrid = []
-const puzzelSize = { rows: 3, cols: 6 };
-let dropZones = []
+let stage = 1;
+let puzzelGrid = [];
+const puzzelSize = { rows: 2, cols: 3 };
+let dropZones = [];
+let piecesInPlace = [];
+let pieces = [];
+
 
 let buildGrid = (puzzelSize, element) => {
   let output = [];
   let h = element.height();
   let w = element.width();
+
   let pieceSize = { height: h / puzzelSize.rows, width: w / puzzelSize.cols }
   // let offSet = 0.2;
   for (let row = 0; row < puzzelSize.rows; row++) {
@@ -31,7 +36,14 @@ let buildPieces = (puzzelGrid) => {
   puzzelGrid.forEach(row => {
     row.forEach(item => {
       let id = 'p' + item.gridPosition.x + '_' + item.gridPosition.y;
-      let piece = $('<div id="' + id + '">').addClass('puzzel-piece').addClass('draggable');
+      let piece = $('<div id="' + id + '">').addClass('puzzel-piece').text(id);
+      if (piecesInPlace.findIndex((inplace) => {
+        if (inplace.attr('id') === id) {
+          return true;
+        }
+      }) < 0) {
+        piece.addClass('draggable');
+      }
       piece.css({
         width: item.width,
         height: item.height,
@@ -61,16 +73,36 @@ let buildDropZones = (puzzelGrid) => {
   return output;
 }
 
-
 $(document).ready(() => {
+  rebuildPuzzel();
+})
+
+window.addEventListener('orientationchange', () => {
+  setTimeout(rebuildPuzzel, 100);
+})
+
+let rebuildPuzzel = () => {
   let puzzelBox = $('.puzzel-box');
+  puzzelBox.empty();
   puzzelGrid = buildGrid(puzzelSize, puzzelBox);
-  let pieces = buildPieces(puzzelGrid);
+  pieces = buildPieces(puzzelGrid);
   puzzelBox.append(pieces);
   puzzelBox.append(buildDropZones(puzzelGrid));
   enableDrag();
   enableDropZones(puzzelGrid);
-})
+  shufflePuzzel(puzzelBox);
+}
+
+shufflePuzzel = (container) => {
+  pieces.forEach(piece => {
+    if (piece.hasClass('draggable')) {
+      $(piece).css({
+        left: (Math.random() * (container.width() - $(piece).width())),
+        top: (Math.random() * (container.width() - $(piece).height()))
+      })
+    }
+  })
+}
 
 enableDropZones = (puzzelGrid) => {
   puzzelGrid.forEach(row => {
@@ -81,7 +113,7 @@ enableDropZones = (puzzelGrid) => {
           // only accept elements matching this CSS selector
           accept: '#' + pieceId,
           // Require a 75% element overlap for a drop to be possible
-          overlap: 0.95,
+          overlap: 0.90,
 
           // listen for drop related events:
 
@@ -118,6 +150,10 @@ enableDropZones = (puzzelGrid) => {
               left: item.position.left,
               transform: 'none',
             })
+            piecesInPlace.push(piece);
+            if (piecesInPlace.length === pieces.length) {
+              nextLevel()
+            }
           },
           // ondropdeactivate: function (event) {
           //   // remove active dropzone feedback
@@ -175,6 +211,14 @@ function dragMoveListener(event) {
   // update the posiion attributes
   target.setAttribute('data-x', x);
   target.setAttribute('data-y', y);
+}
+
+nextLevel = () => {
+  if (stage < 3) {
+    stage += 1;
+  }
+  $('[id^=stage]').addClass('hide');
+  $('#stage' + stage).removeClass('hide');
 }
 
 window.dragMoveListener = dragMoveListener;
