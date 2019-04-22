@@ -2,11 +2,39 @@
 
 let stage = 1;
 let puzzelGrid = [];
-const puzzelSize = { rows: 2, cols: 3 };
+const puzzelSize = { rows: 3, cols: 4 };
 let dropZones = [];
 let piecesInPlace = [];
 let pieces = [];
 
+imageCut = (element) => {
+  var image = new Image();
+  image.onload = cutImageUp;
+  image.src = 'img/demo.jpeg';
+  image.crossOrigin = "anonymous";
+
+  function cutImageUp() {
+    var imagePieces = [];
+    let widthOfOnePiece = image.width / puzzelSize.cols;
+    let heightOfOnePiece = image.height / puzzelSize.rows;
+    for (var x = 0; x < puzzelSize.cols; ++x) {
+      for (var y = 0; y < puzzelSize.rows; ++y) {
+        let canvas = document.createElement('canvas');
+        canvas.width = widthOfOnePiece;
+        canvas.height = heightOfOnePiece;
+        let context = canvas.getContext('2d');
+        context.drawImage(image, x * widthOfOnePiece, y * heightOfOnePiece, widthOfOnePiece, heightOfOnePiece, 0, 0, canvas.width, canvas.height);
+        $('#p' + x + '_' + y).attr('src', canvas.toDataURL());
+      }
+    }
+
+    // imagePieces now contains data urls of all the pieces of the image
+
+    // load one piece onto the page
+    // var anImageElement = document.getElementById('myImageElementInTheDom');
+    // anImageElement.src = imagePieces[0];
+  }
+}
 
 let buildGrid = (puzzelSize, element) => {
   let output = [];
@@ -36,7 +64,7 @@ let buildPieces = (puzzelGrid) => {
   puzzelGrid.forEach(row => {
     row.forEach(item => {
       let id = 'p' + item.gridPosition.x + '_' + item.gridPosition.y;
-      let piece = $('<div id="' + id + '">').addClass('puzzel-piece').text(id);
+      let piece = $('<img id="' + id + '">').addClass('puzzel-piece').text(id);
       if (piecesInPlace.findIndex((inplace) => {
         if (inplace.attr('id') === id) {
           return true;
@@ -74,14 +102,6 @@ let buildDropZones = (puzzelGrid) => {
 }
 
 $(document).ready(() => {
-  rebuildPuzzel();
-})
-
-window.addEventListener('orientationchange', () => {
-  setTimeout(rebuildPuzzel, 100);
-})
-
-let rebuildPuzzel = () => {
   let puzzelBox = $('.puzzel-box');
   puzzelBox.empty();
   puzzelGrid = buildGrid(puzzelSize, puzzelBox);
@@ -91,6 +111,36 @@ let rebuildPuzzel = () => {
   enableDrag();
   enableDropZones(puzzelGrid);
   shufflePuzzel(puzzelBox);
+  imageCut(puzzelBox);
+})
+
+window.addEventListener('resize', () => {
+  setTimeout(rebuildPuzzel, 100);
+})
+
+let rebuildPuzzel = () => {
+  let puzzelBox = $('.puzzel-box');
+  puzzelGrid = buildGrid(puzzelSize, puzzelBox);
+  puzzelGrid.forEach(row => {
+    row.forEach(item => {
+      let id = 'p' + item.gridPosition.x + '_' + item.gridPosition.y;
+      let piece = $('#' + id);
+      let dropzone = $('.drop-zone-' + item.gridPosition.x + '-' + item.gridPosition.y);
+      piece.css({
+        width: item.width,
+        height: item.height,
+        top: item.position.top,
+        left: item.position.left,
+      })
+      dropzone.css({
+        width: item.width,
+        height: item.height,
+        top: item.position.top,
+        left: item.position.left,
+      })
+    })
+  })
+  shufflePuzzel(puzzelBox);
 }
 
 shufflePuzzel = (container) => {
@@ -98,15 +148,15 @@ shufflePuzzel = (container) => {
     if (piece.hasClass('draggable')) {
       $(piece).css({
         left: (Math.random() * (container.width() - $(piece).width())),
-        top: (Math.random() * (container.width() - $(piece).height()))
+        top: (Math.random() * (container.height() - $(piece).height()))
       })
     }
   })
 }
 
-enableDropZones = (puzzelGrid) => {
-  puzzelGrid.forEach(row => {
-    row.forEach(item => {
+enableDropZones = () => {
+  puzzelGrid.forEach((row, rowIndex) => {
+    row.forEach((item, colIndex) => {
       let pieceId = 'p' + item.gridPosition.x + '_' + item.gridPosition.y;
       interact('.drop-zone-' + item.gridPosition.x + '-' + item.gridPosition.y)
         .dropzone({
@@ -144,15 +194,14 @@ enableDropZones = (puzzelGrid) => {
             piece.removeAttr('data-x');
             piece.removeAttr('data-y');
             piece.css({
-              width: item.width,
-              height: item.height,
-              top: item.position.top,
-              left: item.position.left,
+              top: puzzelGrid[rowIndex][colIndex].position.top,
+              left: puzzelGrid[rowIndex][colIndex].position.left,
               transform: 'none',
+              'z-index': 1,
             })
             piecesInPlace.push(piece);
             if (piecesInPlace.length === pieces.length) {
-              nextLevel()
+              setTimeout(nextLevel, 2000);
             }
           },
           // ondropdeactivate: function (event) {
@@ -180,18 +229,21 @@ let enableDrag = () => {
       ],
       // enable autoScroll
       autoScroll: true,
-
+      onstart: function (event) {
+        $(event.target).addClass('on-top');
+      },
       // call this function on every dragmove event
       onmove: dragMoveListener,
       // call this function on every dragend event
       onend: function (event) {
-        var textEl = event.target.querySelector('p');
+        $(event.target).removeClass('on-top');
+        // var textEl = event.target.querySelector('p');
 
-        textEl && (textEl.textContent =
-          'moved a distance of '
-          + (Math.sqrt(Math.pow(event.pageX - event.x0, 2) +
-            Math.pow(event.pageY - event.y0, 2) | 0))
-            .toFixed(2) + 'px');
+        // textEl && (textEl.textContent =
+        //   'moved a distance of '
+        //   + (Math.sqrt(Math.pow(event.pageX - event.x0, 2) +
+        //     Math.pow(event.pageY - event.y0, 2) | 0))
+        //     .toFixed(2) + 'px');
       }
     });
 

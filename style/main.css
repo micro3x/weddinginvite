@@ -2,7 +2,6 @@
   min-height: 300px;
   background: lightgray;
   position: relative;
-  padding: 50px;
 }
 
 .main-box .puzzel-box {
@@ -10,6 +9,8 @@
   width: 80vw;
   height: 45vw;
   position: relative;
+  margin: 0 auto;
+  width: 90%;
 }
 
 .puzzel-piece {
@@ -17,7 +18,7 @@
   position: absolute;
   border: 1px solid black;
   touch-action: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 .drop-zone {
@@ -29,5 +30,9 @@
 
 .hide {
   display: none;
+}
+
+.on-top {
+  z-index: 10;
 }
 
