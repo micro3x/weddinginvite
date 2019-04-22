@@ -6,6 +6,7 @@ const puzzelSize = { rows: 3, cols: 4 };
 let dropZones = [];
 let piecesInPlace = [];
 let pieces = [];
+var audio = new Audio('img/puzzle.mp3');
 
 imageCut = (element) => {
   var image = new Image();
@@ -112,7 +113,24 @@ $(document).ready(() => {
   enableDropZones(puzzelGrid);
   shufflePuzzel(puzzelBox);
   imageCut(puzzelBox);
+  musicPlay(1);
 })
+
+musicPlay = (track) => {
+  audio.pause();
+  switch (track) {
+    case 1:
+      audio = new Audio('img/puzzle.mp3')
+      break;
+    case 2:
+      audio = new Audio('img/org_puzzle.mp3')
+      break;
+    default:
+      audio = new Audio('img/puzzle.mp3')
+      break;
+  }
+  audio.play();
+}
 
 window.addEventListener('resize', () => {
   setTimeout(rebuildPuzzel, 100);
@@ -271,6 +289,7 @@ nextLevel = () => {
   }
   $('[id^=stage]').addClass('hide');
   $('#stage' + stage).removeClass('hide');
+  musicPlay(stage);
 }
 
 window.dragMoveListener = dragMoveListener;
