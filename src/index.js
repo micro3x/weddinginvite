@@ -120,16 +120,16 @@ musicPlay = (track) => {
   audio.pause();
   switch (track) {
     case 1:
-      audio = new Audio('img/puzzle.mp3')
+      audio = new Audio('img/org_puzzle.mp3');
       break;
     case 2:
-      audio = new Audio('img/org_puzzle.mp3')
+      audio = new Audio('img/puzzle.mp3');
       break;
     default:
       audio = new Audio('img/puzzle.mp3')
       break;
   }
-  audio.play();
+  setTimeout(audio.play(), 200);
 }
 
 window.addEventListener('resize', () => {
