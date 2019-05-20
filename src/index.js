@@ -113,24 +113,23 @@ $(document).ready(() => {
   enableDropZones(puzzelGrid);
   shufflePuzzel(puzzelBox);
   imageCut(puzzelBox);
-  musicPlay(1);
 })
 
-musicPlay = (track) => {
-  audio.pause();
-  switch (track) {
-    case 1:
-      audio = new Audio('img/org_puzzle.mp3');
-      break;
-    case 2:
-      audio = new Audio('img/puzzle.mp3');
-      break;
-    default:
-      audio = new Audio('img/puzzle.mp3')
-      break;
-  }
-  setTimeout(audio.play(), 200);
-}
+// musicPlay = (track) => {
+//   audio.pause();
+//   switch (track) {
+//     case 1:
+//       audio = new Audio('img/org_puzzle.mp3');
+//       break;
+//     case 2:
+//       audio = new Audio('img/puzzle.mp3');
+//       break;
+//     default:
+//       audio = new Audio('img/puzzle.mp3')
+//       break;
+//   }
+//   setTimeout(audio.play(), 200);
+// }
 
 window.addEventListener('resize', () => {
   setTimeout(rebuildPuzzel, 100);
@@ -288,8 +287,7 @@ nextLevel = () => {
     stage += 1;
   }
   $('[id^=stage]').addClass('hide');
-  $('#stage' + stage).removeClass('hide');
-  musicPlay(stage);
+  $('#stage' + stage).removeClass('hide').trigger('classChange');
 }
 
 window.dragMoveListener = dragMoveListener;
