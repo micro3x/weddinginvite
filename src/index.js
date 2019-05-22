@@ -271,7 +271,7 @@ nextLevel = () => {
     stage += 1;
   }
   $('[id^=stage]').addClass('hide');
-  $('#stage' + stage).removeClass('hide');
+  $('#stage' + stage).removeClass('hide').trigger('classChange');
 }
 
 window.dragMoveListener = dragMoveListener;
