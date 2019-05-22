@@ -5,9 +5,10 @@
 }
 
 .main-box .puzzel-box {
-  background: white;
+  background-image: url('img/demo_bkg.jpg');
+  background-size: cover;
   width: 80vw;
-  height: 45vw;
+  height: 65vw;
   position: relative;
   margin: 0 auto;
   width: 90%;
